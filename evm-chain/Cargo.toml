@@ -1,5 +1,5 @@
 [package]
-name = "xtransfer_ink"
+name = "evm_chain"
 version = "0.1.0"
 authors = ["Wenfeng Wang <kalot.wang@gmail.com>"]
 edition = "2021"
@@ -16,11 +16,13 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 pink-extension = { version = "0.1", default-features = false, features = ["ink-as-dependency"] }
 
-openbrush = { path = "./vendor/openbrush-contracts", version = "~2.1.0", default-features = false }
-environmental = { path = "./utils/environmental", default-features = false, optional = true }
+registry_traits = { path = "../registry-traits", default-features = false}
+
+openbrush = { path = "../vendor/openbrush-contracts", version = "~2.1.0", default-features = false }
+environmental = { path = "../utils/environmental", default-features = false, optional = true }
 
 [lib]
-name = "xtransfer_ink"
+name = "evm_chain"
 path = "lib.rs"
 crate-type = [
 	# Used for normal contract Wasm blobs.
@@ -39,6 +41,7 @@ std = [
     "scale/std",
     "scale-info/std",
     "pink-extension/std",
+    "registry_traits/std",
 ]
 ink-as-dependency = []
 mockable = [
