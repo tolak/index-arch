@@ -1,20 +1,27 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+extern crate alloc;
 
 mod eth_signer;
 
-#[openbrush::contract(env = PinkEnvironment)]
+use pink_extension as pink;
+
+#[pink::contract(env = PinkEnvironment)]
+#[pink(inner=ink_lang::contract)]
 mod evm_chain {
+    use super::pink;
     use crate::eth_signer::EthSigner;
     use ink_lang as ink;
     use ink_storage::{traits::SpreadAllocate, Mapping};
-    use pink_extension::PinkEnvironment;
+    use alloc::vec::Vec;
+    use alloc::vec;
+    use pink::PinkEnvironment;
     use registry_traits::{
         AssetInfo, AssetsRegisry, BalanceFetcher, ChainType, Error as RegistryError, Inspector,
         SignedTransaction,
     };
 
     #[ink(storage)]
-    #[derive(SpreadAllocate)]
+    // #[derive(SpreadAllocate)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub struct EvmChain {
         admin: AccountId,
@@ -50,11 +57,18 @@ mod evm_chain {
         #[ink(constructor)]
         /// Create an Ethereum entity
         pub fn new(chain: Vec<u8>) -> Self {
-            ink::utils::initialize_contract(|this: &mut Self| {
-                this.admin = Self::env().caller();
-                this.chain = chain;
-                this.chain_type = ChainType::EVM;
-            })
+            // ink::utils::initialize_contract(|this: &mut Self| {
+            //     this.admin = Self::env().caller();
+            //     this.chain = chain;
+            //     this.chain_type = ChainType::Evm;
+            // })
+            EvmChain {
+                admin: Self::env().caller(),
+                chain: chain,
+                chain_type: ChainType::Evm,
+                assets: vec![],
+            }
+
         }
 
         /// Set native asset
@@ -62,7 +76,7 @@ mod evm_chain {
         #[ink(message)]
         pub fn set_native(&mut self, asset: AssetInfo) -> Result<()> {
             Self::env().emit_event(NativeSet {
-                chain: self.chain,
+                chain: self.chain.clone(),
                 asset: Some(asset),
             });
             Ok(())
@@ -73,7 +87,7 @@ mod evm_chain {
         #[ink(message)]
         pub fn set_stable(&mut self, asset: AssetInfo) -> Result<()> {
             Self::env().emit_event(StableSet {
-                chain: self.chain,
+                chain: self.chain.clone(),
                 asset: Some(asset),
             });
             Ok(())

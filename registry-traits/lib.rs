@@ -1,10 +1,14 @@
+#![cfg_attr(not(feature = "std"), no_std)]
+extern crate alloc;
+
 use ink_lang as ink;
-use ink_storage::traits::SpreadLayout;
+use ink_storage::traits::{StorageLayout, SpreadAllocate, PackedAllocate, SpreadLayout, PackedLayout};
+use alloc::vec::Vec;
 use scale::{Decode, Encode};
-use xcm::latest::{prelude::*, MultiAsset, MultiLocation};
+// use xcm::latest::{MultiAsset, MultiLocation};
 
 /// Errors that can occur upon registry module.
-#[derive(Debug, PartialEq, Eq, Encode, Decode)]
+#[derive(Debug, PartialEq, Eq, Encode, Decode,)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum Error {
     AssetAlreadyRegistered,
@@ -41,19 +45,21 @@ pub trait Signer {
 #[ink::trait_definition]
 pub trait BalanceFetcher {
     /// Return on-chain `asset` amount of `account`
+    /// TODO: asset: MultiAsset, account: MultiLocation
     #[ink(message)]
-    fn balance_of(&self, asset: MultiAsset, account: MultiLocation) -> u128;
+    fn balance_of(&self, asset: Vec<u8>, account: Vec<u8>) -> u128;
 }
 
 /// Beyond general properties like `name`, `symbol` and `decimals`,
 /// a `location` is needed to identify the asset between multi-chains
-#[derive(SpreadLayout, Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode, SpreadLayout, PackedLayout, SpreadAllocate,)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout,))]
 pub struct AssetInfo {
     name: Vec<u8>,
     symbol: Vec<u8>,
     decimals: u8,
-    location: MultiLocation,
+    /// Encoded asset MultiLocation
+    location: Vec<u8>,
 }
 
 #[ink::trait_definition]
@@ -82,11 +88,11 @@ pub trait AssetsRegisry {
     fn lookup_by_location(&self, name: Vec<u8>) -> Option<AssetInfo>;
 }
 
-#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode, SpreadLayout, PackedLayout,)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout,))]
 pub enum ChainType {
-    EVM,
-    SUB,
+    Evm,
+    Sub,
 }
 
 #[ink::trait_definition]

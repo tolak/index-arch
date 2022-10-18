@@ -5,21 +5,18 @@ authors = ["Wenfeng Wang <kalot.wang@gmail.com>"]
 edition = "2021"
 
 [dependencies]
-ink_prelude = { version = "3.3.1", default-features = false }
 ink_primitives = { version = "3.3.1", default-features = false }
-ink_storage = { version = "3.3.1", default-features = false }
 ink_metadata = { version = "3.3.1", default-features = false, features = ["derive"], optional = true }
 ink_env = { version = "3.3.1", default-features = false }
-ink_lang = { version = "3.0.1", default-features = false }
+ink_storage = { version = "3.3.1", default-features = false }
+ink_lang = { version = "3.3.1", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
-scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
-pink-extension = { version = "0.1", default-features = false, features = ["ink-as-dependency"] }
+scale = { package = "parity-scale-codec", version = "3.1", default-features = false, features = ["derive"] }
+scale-info = { version = "2.1", default-features = false, features = ["derive"], optional = true }
+
+pink-extension = { version = "0.1.0", default-features = false }
 
 registry_traits = { path = "../registry-traits", default-features = false}
-
-openbrush = { path = "../vendor/openbrush-contracts", version = "~2.1.0", default-features = false }
-environmental = { path = "../utils/environmental", default-features = false, optional = true }
 
 [lib]
 name = "evm_chain"
@@ -44,7 +41,3 @@ std = [
     "registry_traits/std",
 ]
 ink-as-dependency = []
-mockable = [
-    "environmental",
-    "openbrush/mockable",
-]
