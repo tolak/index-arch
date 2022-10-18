@@ -59,10 +59,10 @@ mod evm_chain {
     impl EvmChain {
         #[ink(constructor)]
         /// Create an Ethereum entity
-        pub fn new(chain: Vec<u8>) -> Self {
+        pub fn new() -> Self {
             EvmChain {
                 admin: Self::env().caller(),
-                chain: chain,
+                chain: b"Ethereum".to_vec(),
                 chain_type: ChainType::Evm,
                 assets: vec![],
                 native: None,
@@ -94,6 +94,16 @@ mod evm_chain {
                 asset: Some(asset),
             });
             Ok(())
+        }
+
+        #[ink(message)]
+        pub fn get_native(&self) -> Option<AssetInfo> {
+            self.native.clone()
+        }
+
+        #[ink(message)]
+        pub fn get_stable(&self) -> Option<AssetInfo> {
+            self.stable.clone()
         }
 
         /// Returns error if caller is not admin
