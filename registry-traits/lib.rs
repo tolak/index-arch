@@ -1,16 +1,19 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 extern crate alloc;
 
-use ink_lang as ink;
-use ink_storage::traits::{StorageLayout, SpreadAllocate, PackedAllocate, SpreadLayout, PackedLayout};
 use alloc::vec::Vec;
+use ink_lang as ink;
+use ink_storage::traits::{
+    PackedAllocate, PackedLayout, SpreadAllocate, SpreadLayout, StorageLayout,
+};
 use scale::{Decode, Encode};
-// use xcm::latest::{MultiAsset, MultiLocation};
+use xcm::latest::{AssetId, MultiLocation};
 
 /// Errors that can occur upon registry module.
-#[derive(Debug, PartialEq, Eq, Encode, Decode,)]
+#[derive(Debug, PartialEq, Eq, Encode, Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum Error {
+    BadOrigin,
     AssetAlreadyRegistered,
     AssetNotFound,
 }
@@ -35,24 +38,25 @@ pub trait Signer {
 /// manage registered foreign assets). Besides, query the native asset and foreign assets
 /// on a chain also different
 ///
-/// Use `MultiAsset` and `MultiLocation` to represent the `asset` and `account` respectively
+/// Use `AssetId` and `MultiLocation` to represent indentification of the `asset` and `account` respectively
 /// is a good choice because developers can customize the way how they represent the `asset`
 /// `account`. For example, for `USDC` on Ethereum, bridge1 can represent it with
 /// `MultiLocation::new(1, X2(GeneralKey('Ethereum'), GeneralKey(usdc_addr))`, bridge2 can represent
 /// it with `MultiLocation::new(1, X3(Parachain(2004), GeneralIndex(0), GeneralKey(usdc_addr))`.
 ///
-/// Both `MultiAsset` and `MultiLocation` are primitives introduced by XCM format.
+/// Both `AssetId` and `MultiLocation` are primitives introduced by XCM format.
 #[ink::trait_definition]
 pub trait BalanceFetcher {
     /// Return on-chain `asset` amount of `account`
-    /// TODO: asset: MultiAsset, account: MultiLocation
     #[ink(message)]
-    fn balance_of(&self, asset: Vec<u8>, account: Vec<u8>) -> u128;
+    fn balance_of(&self, asset: AssetId, account: MultiLocation) -> u128;
 }
 
 /// Beyond general properties like `name`, `symbol` and `decimals`,
 /// a `location` is needed to identify the asset between multi-chains
-#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode, SpreadLayout, PackedLayout, SpreadAllocate,)]
+#[derive(
+    Clone, Debug, PartialEq, Eq, scale::Encode, scale::Decode, SpreadLayout, PackedLayout, SpreadAllocate,
+)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout,))]
 pub struct AssetInfo {
     name: Vec<u8>,
@@ -88,7 +92,7 @@ pub trait AssetsRegisry {
     fn lookup_by_location(&self, name: Vec<u8>) -> Option<AssetInfo>;
 }
 
-#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode, SpreadLayout, PackedLayout,)]
+#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode, SpreadLayout, PackedLayout)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout,))]
 pub enum ChainType {
     Evm,

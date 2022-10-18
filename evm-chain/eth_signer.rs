@@ -1,9 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 extern crate alloc;
 
+use alloc::vec::Vec;
 use registry_traits::{SignedTransaction, Signer};
 use scale::{Decode, Encode};
-use alloc::vec::Vec;
 
 #[derive(Debug, PartialEq, Eq, Encode, Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
